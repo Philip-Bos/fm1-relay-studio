@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16171a">
+  <meta name="description" content="Browser control centre for M-VAVE FM-1s running open-source firmware: MIDI clock, sequencer, sound editor, mixer and multitrack recorder.">
+  <title>FM-1 Relay Studio</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+<div class="unit">
+  <header class="lcd-bar">
+    <div class="brand"><b>FM-1</b> relay studio</div>
+    <div class="lcd" aria-label="Transport display">
+      <div class="lcd-cell"><small>BPM</small>
+        <input id="tempo" type="number" min="30" max="300" value="120" inputmode="numeric" aria-label="Tempo in BPM"></div>
+      <div class="lcd-cell"><small>BAR.BEAT</small><span id="bar-readout">001.01</span></div>
+      <div class="lcd-cell"><small>CLOCK</small><span id="clock-state">STOP</span></div>
+      <div class="lcd-cell wide"><small>MIDI</small><span id="midi-status">NOT CONNECTED</span></div>
+    </div>
+    <div class="transport">
+      <button id="tempo-down" class="key" aria-label="Tempo down">−</button>
+      <input id="tempo-range" type="range" min="30" max="300" value="120" aria-label="Master tempo">
+      <button id="tempo-up" class="key" aria-label="Tempo up">+</button>
+      <button id="tap" class="key wide-key" title="Tap tempo">TAP</button>
+      <button id="stop" class="key big stop" aria-label="Stop all"><i></i></button>
+      <button id="play" class="key big play" aria-label="Start all armed (Space)"><i></i></button>
+      <button id="connect-midi" class="key wide-key">CONNECT</button>
+      <button id="demo" class="key wide-key ghost" title="Add a virtual SLOOP device to try every page without hardware">TRY DEMO DEVICE</button>
+    </div>
+  </header>
+
+  <div class="capbar" aria-label="Recording">
+    <button id="record" class="rec"><i></i><b>RECORD</b></button>
+    <span id="record-dot" class="dot"></span>
+    <time id="record-time">00:00</time>
+    <span id="record-status" role="status" aria-live="polite">READY · SET AN AUDIO IN ON A DEVICE, THEN RECORD</span>
+    <button id="rec-open" class="key wide-key">RECORDINGS (0)</button>
+  </div>
+
+  <nav id="pages" class="pages" aria-label="Pages">
+    <button data-p="devices">DEVICES</button>
+    <button data-p="seq">SEQUENCER</button>
+    <button data-p="sound">SOUND</button>
+    <button data-p="mixer">MIXER</button>
+    <button data-p="controls">CONTROLS</button>
+    <button data-p="library">LIBRARY</button>
+    <button data-p="capture">RECORDINGS</button>
+  </nav>
+
+  <main class="body">
+    <section class="page" data-page="devices" aria-label="Devices">
+      <div class="rack">
+        <div class="rack-head"><span>DEVICES · click one to work on it</span><span id="device-count">0/8 ARMED</span></div>
+        <div id="devices"></div>
+      </div>
+      <div id="setup" class="setup" aria-label="Setup for the selected device"></div>
+    </section>
+
+    <section class="page" data-page="seq" aria-label="Sequencer" hidden>
+      <div class="seq">
+        <div class="seq-head">
+          <div id="seq-title" class="seq-title">NO DEVICE</div>
+          <div id="seq-hint" class="seq-hint"></div>
+        </div>
+        <div id="tracks" class="tabs" role="tablist"></div>
+        <div id="qs" class="qs"></div>
+        <div id="drumlib" class="beats" hidden></div>
+        <div id="seq-tools" class="seq-tools"></div>
+        <div class="roll">
+          <canvas id="ruler" aria-label="Timeline"></canvas>
+          <div class="scroll" id="scroll"><div id="spacer"></div><canvas id="roll" aria-label="Piano roll"></canvas></div>
+          <canvas id="vel" aria-label="Velocity"></canvas>
+        </div>
+        <p class="roll-help">Double-click or use the pencil to draw · drag a note to move · drag its right edge to stretch · stack notes for chords · right-click deletes · Ctrl+Z undo · Ctrl+C/V/D copy, paste, duplicate · Q quantise · arrows nudge</p>
+      </div>
+      <div class="kbd" aria-label="Keyboard">
+        <div class="kbd-bar">
+          <button id="krec" class="key wide-key rec-arm">REC</button>
+          <span id="kmode" class="mode">KEYS · REC OFF</span>
+          <button id="kq" class="key wide-key active">QUANTISE REC</button>
+          <label>OCTAVE<span class="oct"><button id="oct-dn" class="key" aria-label="Octave down">−</button><b id="oct-val">4</b><button id="oct-up" class="key" aria-label="Octave up">+</button></span></label>
+          <button id="kback" class="key wide-key">‹ BACK</button>
+          <button id="krest" class="key wide-key">REST ›</button>
+          <span class="hint">Computer keys A W S E D F T G Y H U J K O L P · a MIDI keyboard records too · click the ruler to set the step-entry cursor</span>
+        </div>
+        <div id="piano" class="piano"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="sound" aria-label="Sound" hidden>
+      <div class="seq">
+        <div class="seq-head"><div class="seq-title">SOUND · <span id="sound-target">—</span></div><div id="sound-status" class="seq-hint" role="status"></div></div>
+        <div class="seq-tools"><div id="sound-tabs" class="seq-tools"></div><button id="sound-load" class="key wide-key">READ FROM DEVICE</button></div>
+        <div id="sound-body" class="sheet"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="mixer" aria-label="Mixer" hidden>
+      <div class="seq">
+        <div class="seq-head"><div class="seq-title">MIXER · <span id="mixer-target">—</span></div><div id="mixer-status" class="seq-hint" role="status"></div></div>
+        <div id="mixer-body" class="sheet"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="controls" aria-label="Controls" hidden>
+      <div class="seq">
+        <div class="seq-head"><div class="seq-title">CONTROLS · <span id="controls-target">—</span></div><div class="seq-hint">Plain MIDI · works with every firmware</div></div>
+        <div id="controls-body" class="sheet"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="library" aria-label="Library" hidden>
+      <div class="seq">
+        <div class="seq-head"><div class="seq-title">LIBRARY · <span id="library-target">—</span></div><div id="library-status" class="seq-hint" role="status"></div></div>
+        <div id="library-body" class="sheet"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="capture" aria-label="Recordings" hidden>
+      <div class="cap">
+        <div class="cap-copy">
+          <h2>Recordings</h2>
+          <p>Press <b>RECORD</b> at the top of any page. Every device with an AUDIO IN chosen is recorded as its own <b>stem</b>, plus one combined <b>mix</b>. Each take is saved in this browser automatically and <b>never overwrites</b> an earlier one. Use the <b>⬇ DOWNLOAD</b> buttons below to save files to your computer.</p>
+        </div>
+        <div class="cap-ctl"><button id="refresh-audio" class="key wide-key">REFRESH AUDIO INPUTS</button></div>
+      </div>
+      <div id="rec-targets" class="targets"></div>
+      <div id="takes" class="takes"></div>
+    </section>
+  </main>
+  <footer class="foot">FM-1 Relay Studio · open source · not affiliated with M-VAVE or the firmware authors · MIT licence</footer>
+</div>
+
+<template id="device-template">
+  <article class="slot">
+    <div class="slot-top">
+      <button class="pick" type="button" aria-label="Work on this device"><span class="num">01</span></button>
+      <strong class="name">No output</strong>
+      <span class="sx" title="Answers the editor protocol: sound, mixer and pattern sync available" hidden>SYSEX</span>
+      <span class="fw" title="Detected firmware">—</span>
+      <button class="arm" type="button" aria-label="Arm device" aria-pressed="false"><i></i></button>
+    </div>
+    <div class="slot-sel">
+      <label>MIDI OUT<select class="midi-select"></select></label>
+      <label>AUDIO IN<select class="audio-select"></select></label>
+      <label>FIRMWARE<select class="fw-select"></select></label>
+    </div>
+    <div class="slot-foot">
+      <span class="led"></span><span class="sync">OFFLINE</span>
+      <button class="mini monitor" type="button" title="Hear this input while recording">MON</button>
+      <button class="mini ident" type="button" title="Ask the device which firmware it runs">IDENT</button>
+      <button class="mini run" type="button">START</button>
+    </div>
+  </article>
+</template>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

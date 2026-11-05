@@ -1,0 +1,40 @@
+name: Firmware report
+description: Tell us how FM-1 Relay Studio works with a firmware (or ask for one to be supported)
+labels: [firmware]
+body:
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware and version
+      description: The name and version shown on the device card (hover the firmware badge), or from the firmware's own menu.
+      placeholder: "FELUCCA SLOOP 2.8.4"
+    validations:
+      required: true
+  - type: input
+    id: port
+    attributes:
+      label: MIDI port name
+      placeholder: "Felucca"
+  - type: checkboxes
+    id: works
+    attributes:
+      label: What works?
+      options:
+        - label: Detected automatically
+        - label: Clock / start / stop
+        - label: Notes from the sequencer
+        - label: Sound page (reads parameters)
+        - label: Mixer
+        - label: Controls (CCs / Program Change)
+        - label: Pattern pull / push
+        - label: Library (projects / presets)
+        - label: Recording
+  - type: textarea
+    id: details
+    attributes:
+      label: What went wrong, and links to the firmware's MIDI docs
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: "Chrome 141, macOS 15"
