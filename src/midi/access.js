@@ -18,6 +18,8 @@ export async function connectMidi() {
     try { S.midi = await navigator.requestMIDIAccess({ sysex: true }); S.sysex = true; }
     catch { S.midi = await navigator.requestMIDIAccess({ sysex: false }); S.sysex = false; }
     S.midi.onstatechange = refreshOutputs;
+    const b = $("#connect-midi");
+    b.textContent = "CONNECTED"; b.classList.add("connected"); b.title = "MIDI is connected. Press again to look for new ports.";
     refreshOutputs();
     await primeAudio();
     await refreshAudio();
