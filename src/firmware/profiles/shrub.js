@@ -92,6 +92,7 @@ export default {
   setup: [
     "Channel: GLO › GLOBAL, page 3, KNOB 1 MIDI CH = OMNI or 1 (or the channel set on this track).",
     "Clock: nothing to set. SHRUB follows MIDI clock, START, STOP, CONTINUE and song position, and its tempo follows too (synced LFOs, delay, arp and the motion sequencer lanes). Press PLAY on the FM-1 to take the lead back.",
+    "GLO › GLOBAL › TEMPO keeps showing SHRUB's own tempo while it follows the clock: the PLAY light's blink shows the tempo it really runs at. Start it from this app, not its own PLAY.",
     "Program Change n picks preset slot n: 1–100 factory, 101–128 INIT.",
     "Four voices, one shared (paraphonic) filter. Keep chords to four notes.",
     "The CCs are SHRUB's factory map. A map changed in the editor (MIDI Learn) replaces it on the FM-1.",
