@@ -1,6 +1,7 @@
 // Firmware registry: detection and the per-device view of a profile.
 // To add a firmware, write a profile in ./profiles and list it here (see docs/ADDING_A_FIRMWARE.md).
 
+import sloop3 from "./profiles/sloop3.js";
 import sloop from "./profiles/sloop.js";
 import felucca from "./profiles/felucca.js";
 import skiff from "./profiles/skiff.js";
@@ -11,7 +12,7 @@ import shrub from "./profiles/shrub.js";
 import { flGeneric, official, generic } from "./profiles/generic.js";
 
 /** Order matters for detection: the first profile whose pattern matches wins. */
-export const PROFILES = [sloop, skiff, jiant, felucca, x0x, echofield, shrub, flGeneric, official, generic];
+export const PROFILES = [sloop3, sloop, skiff, jiant, felucca, x0x, echofield, shrub, flGeneric, official, generic];
 const BY_ID = Object.fromEntries(PROFILES.map((p) => [p.id, p]));
 
 export const getProfile = (id) => BY_ID[id] || generic;

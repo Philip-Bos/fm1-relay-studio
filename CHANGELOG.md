@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- **SLOOP 3** (isod89) profile for 3.3.7, separate from SLOOP 2.8 since it is a rewrite: detection by its "FM-1 SLOOP 3" port, SYN 1–4 on channels 1–4 and drums on 10 with its own GM notes, its CC map (LFO rate added, expression gone), sounds and 46 kits by Program Change and bank, the remote buttons and the 27 punch-in effects, and setup lines (SYNC = EXT to follow the clock). Its own SysEx editor protocol isn't supported yet.
 - **SHRUB** (Xfer Records) profile for firmware V1.07: detection from its "USB Composite Device" port when the device doesn't answer INFO, the factory CC map (54 controls), presets 1–128 by Program Change, and setup lines for channel and clock.
 - `detect.genericPort` for firmwares whose USB port name isn't their own: the studio trusts the name only when INFO gets no reply, so Felucca forks with the same name still show up as FL-compatible.
 

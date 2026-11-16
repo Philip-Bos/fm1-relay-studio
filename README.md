@@ -57,6 +57,7 @@ The session (device assignments, firmware choices, tempo, patterns) is saved in 
 
 | Firmware | Detection | Editor protocol | CC map | Program Change | Extras |
 | --- | --- | --- | --- | --- | --- |
+| [SLOOP 3](https://github.com/isod89/sloop3-fm1) 3.3 | port name | — (own protocol, not FL) | ✓ documented | sounds, kits, bank | remote buttons, punch-in FX |
 | [SLOOP](https://github.com/isod89/sloop-fm1) 2.8 | INFO | v12: drum lanes, levels, ratchets, backup | ✓ documented | presets, kits, bank | remote buttons, punch-in FX |
 | [Felucca](https://github.com/hugelton/Felucca) 1.7 | INFO | v4 | ✓ documented | ✓ | |
 | [Skiff](https://github.com/illuminus5/skiff) 2.0 | INFO / port | v4 (6 tracks) | ✓ documented | ✓ | |

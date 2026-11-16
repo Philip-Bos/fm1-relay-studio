@@ -54,3 +54,16 @@ test("SHRUB: generic port name, trusted only without an INFO reply", () => {
     assert.equal(shrub.cc.find((c) => c.cc === cc)?.label, label, `CC ${cc}`);
   }
 });
+
+test("SLOOP 3 is its own firmware, apart from SLOOP 2.8", () => {
+  assert.equal(detectProfile({ portName: "FM-1 SLOOP 3" }), "sloop3");
+  assert.equal(detectProfile({ portName: "SLOOP" , info: { version: "SLOOP 2.8.4", ntrk: 4, tail: [12] } }), "sloop");
+  const s3 = PROFILES.find((p) => p.id === "sloop3");
+  assert.equal(s3.protocol, null);
+  assert.deepEqual(tracksFor(s3).map((t) => t.ch), [1, 2, 3, 4, 10]);
+  assert.equal(tracksFor(s3).at(-1).lanes.find(([n]) => n === "LOW TOM")[1], 41);
+  assert.equal(s3.fx.pads.length, 27);
+  assert.equal(s3.remote.buttons.length, 14);
+  assert.equal(s3.kits.length, 46);
+  assert.ok(s3.cc.some((c) => c.cc === 76) && !s3.cc.some((c) => c.cc === 11));
+});

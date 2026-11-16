@@ -21,6 +21,19 @@ Command numbers from 33 up mean different things on different forks. On SLOOP 34
 
 INFO tails also differ. SLOOP appends its protocol version (5 … 12). Skiff appends `CHAIN_ROWS` and tagged blocks, including `49 01` with the full 14-bit `P_COUNT` / `P_E0` above 127. `parseInfo` handles both.
 
+## SLOOP 3 (isod89) — documented against 3.3.7
+
+A rewrite of SLOOP from scratch, with its own entry in the firmware list. It is a public beta. Sources: [`app/midi.c`](https://github.com/isod89/sloop3-fm1/blob/main/app/midi.c), `fw/main.c` (`midi_in`, `midi_program`, `remote_cc`, `midi_fx`), `app/edproto.h` and `docs/GUIDE.md`.
+
+- USB port name "FM-1 SLOOP 3", which is how the studio detects it.
+- Its own SysEx editor protocol, `F0 7D 53 33 <cmd> <bytes packed 8 to 7> F7` (protocol 2), not FL. It doesn't answer FL INFO. Its INFO (command 1) answers with the protocol, the track count (5), the values per sound (48) and the version string ("3.3.7" on the unit this was checked on). The studio doesn't speak it yet, so the sound editor, SysEx mixer, pattern sync and library don't reach SLOOP 3. Everything over plain MIDI does.
+- Tracks: SYN 1–4 on channels 1–4 and the drums on 10 (GLO › MIDI 4/6 › IN = TRACKS, the default). IN = SEL sends every channel to the selected track. On screen the drums are the 5th track.
+- Clock: GLO › MIDI 4/6 › SYNC = **EXT**. The default INT ignores clock, START and STOP. With EXT it follows 24 PPQN, START, CONTINUE and STOP, and returns to its own tempo 0.5 s after the clock stops. CLK sends its own clock, only while SYNC is INT.
+- Drums (GLO › 5/6 › DRUM): GM by default, with its own notes (36 kick, 35 kick 2, 38 snare, 39 clap, 42 hat, 46 open, 44 pedal, 37 rim, 40 snare 2, **41** low tom, 48 hi tom, 49 crash, 51 ride, 70 shaker, 63 conga, 56 bell). PADS puts the 16 sounds on notes 36–51.
+- CCs (`midi_cc`, SLOOP 2.8's numbers): 1 the LFO to the pitch, 5 glide, 7 level, 10 pan, 71 resonance, 72 / 73 / 75 release / attack / decay, 74 the engine's cutoff (on engines without one, the track filter: 64 off), **76 LFO rate** (new), 91 / 93 / 94 reverb / chorus / delay sends, 64 sustain, 120 / 123 all notes off, 121 reset. 11 (expression) is gone. GLO + F#3 is MIDI LEARN (16 CCs).
+- Program Change: the n-th factory sound (bank select CC 0 picks the next 128; bank 8 picks your 32 sounds). On the drum channel it picks a kit: 37 factory kits, USR1–4, USR3+4 and SYN1–4.
+- REMOTE (GLO › 5/6): CC 102 + k presses button k, in SLOOP 2.8's order. FX CH (GLO › 5/6): notes 53–79 hold the 27 punch-ins, the same effects and order as 2.8.
+
 ## SLOOP (isod89) — documented against 2.8.4
 
 - Tracks: SYN 1–3 on channels 1–3, drums on 10 (GLO › MIDI). The drums are 16 lanes, one per white key (KICK 36 … COWBELL 56).
