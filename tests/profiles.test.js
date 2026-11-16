@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readdirSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
-import { PROFILES, tracksFor } from "../src/firmware/index.js";
+import { PROFILES, tracksFor, detectProfile } from "../src/firmware/index.js";
 
 test("every firmware profile is well formed", () => {
   const ids = new Set();
@@ -41,4 +41,16 @@ test("every source module parses", () => {
   walk(new URL("../src", import.meta.url).pathname);
   for (const f of files) execFileSync(process.execPath, ["--check", f]);
   assert.ok(files.length > 15);
+});
+
+test("SHRUB: generic port name, trusted only without an INFO reply", () => {
+  const info = (version) => ({ version, ntrk: 4, tail: [] });
+  assert.equal(detectProfile({ portName: "USB Composite Device" }), "shrub");
+  assert.equal(detectProfile({ portName: "USB Composite Device", info: info("SLOOP 2.8.4") }), "sloop");
+  assert.equal(detectProfile({ portName: "USB Composite Device", info: info("SomeFork 0.1") }), "fl");
+  assert.equal(detectProfile({ portName: "ECHOFIELD FM-1" }), "echofield");
+  const shrub = PROFILES.find((p) => p.id === "shrub");
+  for (const [cc, label] of [[74, "CUTOFF"], [71, "RES"], [16, "MACRO 1"], [19, "MACRO 4"], [91, "REVERB MIX"], [114, "ARP GATE"]]) {
+    assert.equal(shrub.cc.find((c) => c.cc === cc)?.label, label, `CC ${cc}`);
+  }
 });

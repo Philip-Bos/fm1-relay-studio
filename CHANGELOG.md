@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- **SHRUB** (Xfer Records) profile for firmware V1.07: detection from its "USB Composite Device" port when the device doesn't answer INFO, the factory CC map (54 controls), presets 1–128 by Program Change, and setup lines for channel and clock.
+- `detect.genericPort` for firmwares whose USB port name isn't their own: the studio trusts the name only when INFO gets no reply, so Felucca forks with the same name still show up as FL-compatible.
+
 ## 2.0.0 — 2026-11-04
 
 The first open-source release of FM-1 Relay Studio.

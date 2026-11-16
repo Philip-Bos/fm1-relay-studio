@@ -7,10 +7,11 @@ import skiff from "./profiles/skiff.js";
 import jiant from "./profiles/jiant.js";
 import x0x from "./profiles/x0x.js";
 import echofield from "./profiles/echofield.js";
+import shrub from "./profiles/shrub.js";
 import { flGeneric, official, generic } from "./profiles/generic.js";
 
 /** Order matters for detection: the first profile whose pattern matches wins. */
-export const PROFILES = [sloop, skiff, jiant, felucca, x0x, echofield, flGeneric, official, generic];
+export const PROFILES = [sloop, skiff, jiant, felucca, x0x, echofield, shrub, flGeneric, official, generic];
 const BY_ID = Object.fromEntries(PROFILES.map((p) => [p.id, p]));
 
 export const getProfile = (id) => BY_ID[id] || generic;
@@ -21,7 +22,8 @@ export function detectProfile({ portName = "", info = null } = {}) {
     const hit = PROFILES.find((p) => p.detect.info?.test(info.version));
     if (hit) return hit.id;
   }
-  const byPort = PROFILES.find((p) => p.detect.port?.test(portName));
+  // a generic port name (SHRUB's "USB Composite Device") only counts for a device that doesn't answer INFO
+  const byPort = PROFILES.find((p) => p.detect.port?.test(portName) && !(info && p.detect.genericPort));
   if (byPort) return byPort.id;
   return info ? "fl" : null;
 }

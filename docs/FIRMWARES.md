@@ -67,6 +67,18 @@ INFO tails also differ. SLOOP appends its protocol version (5 … 12). Skiff app
 - Before 0.2.9 it ignores all real-time messages. The studio therefore also sends CC 104 = 127 with START and 0 with STOP (the profile's `transport.playCc`).
 - CCs (`app/params.c` PI[].cc, linear over each range): 7 level, 14 position, 15 texture, 16 scatter, 17 drift, 18 evolve, 19 pitch, 21 tape, 22 harmony, 23 width, 24 size, 25 density, 26 scan, 27 reverse, 28 tone, 29 drive, 30 / 31 pitch / size random, 71 resonance, 72 / 73 release / attack, 74 cutoff, 85 / 86 / 87 delay time / feedback / mix, 91 reverb, 92 reverb size, 93 shimmer, 94 damp. 102 picks the mode, 103 freeze, 104 play, 64 sustain. Program Change loads a preset.
 
+## SHRUB (Xfer Records) — documented against V1.07
+
+- Serum 1, pared down for the FM-1: one part, four voices, one filter shared by every voice. Beta. Source of every fact here: the [SHRUB guide](https://shrub.audio/guide) 1.0 ("MIDI and USB", "The presets", Appendix C).
+- No FL editor protocol: it answers neither INFO nor the universal identity request (checked on a V1.07 unit). Its editor at shrub.audio talks to it on its own.
+- USB port name "USB Composite Device" (seen on a V1.07 unit; the guide doesn't name it). That name isn't unique, so the profile sets `detect.genericPort`: the studio trusts it only when the device doesn't answer INFO. Pick the firmware on the device card if another firmware shows up as SHRUB.
+- Channel: GLO › GLOBAL, page 3, KNOB 1 MIDI CH (OMNI, 1–16 or MPE). It is an FM-1 setting, not part of the preset. USB and the TRS MIDI IN behave the same.
+- Clock: nothing to set. Clock, START, STOP, CONTINUE and song position move its transport. TEMPO follows the clock, so synced LFOs, the delay, the arp and the motion-sequencer lanes run at the studio's tempo. PLAY on the FM-1 takes the lead back.
+- MIDI out: the notes from its keys, arp and chords, and clock with START / STOP while its own transport leads.
+- CCs (Appendix C, the factory map; the editor's MIDI Learn or File › Load MIDI Map replaces it on the device): 5 glide, 7 level, 16–19 macros 1–4, 20 / 21 WT position A / B, 22 / 23 warp amount A / B, 24 / 25 level A / B, 26 sub, 27 noise, 28 / 29 detune A / B, 30 blend A, 31 filter mix, 70 drive, 71 resonance, 74 cutoff, 73 / 75 / 78 / 72 ENV 1 A / D / S / R, 80 ENV 2 to cutoff, 81 / 82 / 83 / 85 ENV 2 A / D / S / R, 76 / 77 / 86 / 87 LFO 1–4 rate, 79 FAT, 90 hyper, 91 reverb, 92 distortion, 93 chorus, 94 delay, 95 phaser, 102 flanger and 103 compressor mix, 104 distortion drive, 105 delay feedback, 106 / 107 reverb size / decay, 108 / 109 / 110 FX filter cutoff / resonance / mix, 111 / 112 EQ gain 1 / 2, 113 / 114 arp rate / gate. Also 64 sustain, 120 and 123 all notes off, 121 reset controllers. Every automatable parameter also has an NRPN (369); the guide doesn't list them.
+- The guide gives no CC ranges or defaults. The profile's defaults are neutral guesses, so **RESET ALL TO DEFAULTS** on the Controls page moves a SHRUB patch away from its saved sound.
+- Program Change picks the preset slot: 128 slots, 1–100 factory, 101–128 INIT. Program Change 0 is slot 1 (the studio's PRESET field is 1-based, so PRESET 5 is slot 5). Bank select isn't documented.
+
 ## Official M-VAVE firmware
 
 A single FM part on channel 1. M-VAVE publishes the CC chart as a separate PDF for V15, which the app doesn't include. Use **Custom CC**.

@@ -63,6 +63,7 @@ The session (device assignments, firmware choices, tempo, patterns) is saved in 
 | [JIANT](https://github.com/juanjiant-bit/JIANT) | INFO / port | v4 (6 tracks) | assumed (Felucca-based) | | |
 | [X0X](https://github.com/charlesvestal/fm1-x0x) | port name | — | — | — | 909 / 808 / 303 / BREAK lanes |
 | [ECHOFIELD](https://github.com/Philip-Bos/echofield-fm1) | port name | — | ✓ documented | ✓ | play CC with START / STOP |
+| [SHRUB](https://shrub.audio) V1.07 | port name (generic, no INFO) | — | ✓ factory map (54 CCs) | presets 1–128 | follows clock, START / STOP / CONTINUE |
 | Any other Felucca fork | INFO | v1–v4, built from INFO | | ✓ | |
 | Official M-VAVE, anything else | manual | — | custom CC | ✓ | |
 

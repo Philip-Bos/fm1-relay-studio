@@ -20,6 +20,7 @@ export default {
   detect: {
     info: /myfw/i,                  // matches the INFO version string (FL-protocol firmware)
     port: /myfw/i,                  // matches the USB MIDI port name
+    // genericPort: true,           // the port name isn't unique to this firmware: use it only when INFO gets no reply
   },
   protocol: "fl",                   // "fl" if it answers F0 7D 46 4C INFO, else null
   tracks: [                         // or (info) => [...] to build them from INFO
