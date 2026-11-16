@@ -15,10 +15,11 @@ S.sceneStore = false;
 
 const live = () => S.slots.filter((s) => s.armed && s.midiId);
 
-/** Keep which tracks play now, on every armed device, in scene k. */
+/** Keep which tracks play now, on every armed device, in scene k. An empty track doesn't play, so it is kept muted:
+ *  build a song layer by layer, storing a scene after each, and each scene keeps only the layers it had. */
 export function storeScene(k) {
   const slots = {};
-  for (const s of live()) slots[s.i] = ensurePattern(s).tracks.map((t) => !!t.mute);
+  for (const s of live()) slots[s.i] = ensurePattern(s).tracks.map((t) => !!t.mute || !t.notes.length);
   S.scenes[k] = { name: S.scenes[k]?.name || `SCENE ${k + 1}`, slots };
   S.scene = k;
   renderScenes();

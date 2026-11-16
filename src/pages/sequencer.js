@@ -22,6 +22,18 @@ export function drawSeq() {
   $("#seq-hint").textContent = o ? "" : "No MIDI output yet: press CONNECT, then choose one on the Devices page.";
   const tabs = $("#tracks");
   tabs.replaceChildren();
+  const devs = S.slots.filter((x) => x.armed && out(x));
+  if (devs.length > 1) { // switch device here, without going back to the Devices page
+    const dv = el("div", "devtabs");
+    devs.forEach((x) => {
+      const b = el("button", "devtab", `${x.i + 1} · ${prof(x).name}`);
+      b.type = "button"; b.setAttribute("aria-pressed", String(x === s));
+      b.style.setProperty("--tc", tcol(x.i));
+      b.onclick = () => { S.sel = x.i; drawSeq(); };
+      dv.append(b);
+    });
+    tabs.append(dv);
+  }
   pat.tracks.forEach((t, i) => {
     const b = el("button", "tab" + (t.mute ? " muted" : ""), t.name);
     b.role = "tab"; b.type = "button";
@@ -52,7 +64,7 @@ export function drawSeq() {
     grp("TOOL",
       btn("POINTER", R.tool === "ptr", () => { R.tool = "ptr"; drawSeq(); }),
       btn("PENCIL", R.tool === "pen", () => { R.tool = "pen"; drawSeq(); }),
-      wrap("GRID", sel(SNAPS, R.snap, (v) => { R.snap = +v; dirty(); })),
+      wrap("GRID", sel(SNAPS, R.snap, (v) => { R.snap = +v; if (R.snap > 1) R.len = R.snap; dirty(); })),
       wrap("ZOOM", Object.assign(el("input"), { type: "range", min: 16, max: 160, value: R.zoom, oninput: (e) => { R.zoom = +e.target.value; sizeRoll(); } }))),
     grp("EDIT (selection, or all)",
       btn("QUANTISE", false, quant), btn("LEGATO", false, legato), btn("HUMANISE", false, human),
