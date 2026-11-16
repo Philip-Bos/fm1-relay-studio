@@ -42,7 +42,7 @@ documented MIDI channels, CCs and Program Change.
 | Page | What you get | Firmware |
 | --- | --- | --- |
 | **Devices** | Up to 8 FM-1s. Each gets a MIDI out, an audio in, firmware detection and setup steps for that firmware. | all |
-| **Sequencer** | Piano roll and drum grid per track. Scales, one-key chords, quantise, humanise, legato, undo. Step entry and live recording from the on-screen keys, the computer keyboard or any MIDI keyboard. 100 built-in drum grooves plus your own. | all |
+| **Sequencer** | Piano roll and drum grid per track. Scales, one-key chords, quantise, humanise, legato, undo. Step entry and live recording from the on-screen keys, the computer keyboard or any MIDI keyboard. 110 built-in drum grooves in 11 genres (Synthwave among them) plus your own. **Scenes** bring tracks in and out together on the next downbeat, across every device. | all |
 | | **Pull from / push to device**: read the FM-1's own step pattern into the roll, or write the roll into it (chords, ties, accents; on SLOOP, drum levels and ratchets). | FL protocol |
 | | **Export .mid** of every track. | all |
 | **Sound** | Every parameter of every track plus the globals, with engines and presets. **Live**: turn a knob on the FM-1 and the slider follows. | FL protocol |

@@ -5,6 +5,7 @@ import { $, el, wrap, grp, btn, sel, rngL, range, clamp } from "../ui/dom.js";
 import { NN, SCALES, CH_LIST } from "../music/theory.js";
 import { DRUMSETS, VEL, LN, parseLay, genDrums } from "../music/drum-library.js";
 import { ensurePattern, curTr, allNotesOff, lanesOf, hist } from "../sequencer/pattern.js";
+import { GM_LANES } from "../firmware/common.js";
 import { R, SNAPS, dirty, sizeRoll, initialScroll, lenText, quant, legato, human, shift, dup, del, undo, clearTrack, audition } from "../sequencer/roll.js";
 import { markScale } from "../sequencer/keyboard.js";
 import { setTempo } from "../sequencer/clock.js";
@@ -88,7 +89,7 @@ function patternTools(s, t) {
   return g;
 }
 
-// ---------- drum beats: 100 built-in grooves + your own saved beats (drum tracks only) ----------
+// ---------- drum beats: 110 built-in grooves + your own saved beats (drum tracks only) ----------
 const DG = Object.keys(DRUMSETS), MYK = "fm1-relay-my-beats", ROWS3 = { K: 0, B: 0, S: 1, C: 1, N: 1, R: 1 };
 const myBeats = () => { try { return JSON.parse(localStorage.getItem(MYK)) || []; } catch { return []; } };
 const myStore = (a) => { try { localStorage.setItem(MYK, JSON.stringify(a)); return true; } catch { return false; } };
@@ -108,9 +109,11 @@ const hitsOfLayers = (lay) => Object.entries(lay).flatMap(([l, pt]) => [...pt].m
 const hitsOfNotes = (notes) => notes.filter((n) => n.t < 384).map((n) => [Math.min(15, Math.round(n.t / 24)), ROWS3[laneLetter(n.p)] ?? 2]);
 
 function putBeat(notes, len, sw, bpm, name, key) {
-  const t = curTr(), lanes = lanesOf(t).map((l) => l[1]);
+  const t = curTr(), kit = lanesOf(t), lanes = kit.map((l) => l[1]);
+  // the library is written for the standard lanes: a kit that plays a sound on another note (SLOOP 3's low tom) gets it there
+  const toKit = (p) => { if (lanes.includes(p)) return p; const nm = GM_LANES.find((l) => l[1] === p)?.[0]; return kit.find((l) => l[0] === nm)?.[1] ?? p; };
   hist(t);
-  t.notes = notes.filter((n) => lanes.includes(n.p));
+  t.notes = notes.map((n) => ({ ...n, p: toKit(n.p) })).filter((n) => lanes.includes(n.p));
   t.len = len; t.cur = 0; t.swing = sw; t.beat = key;
   if (S.beatTempo && bpm) setTempo(bpm);
   const lost = notes.length - t.notes.length;
@@ -143,7 +146,7 @@ function renderDrumLib() {
   if (!t.drum) return;
   box.style.setProperty("--tc", tc);
   const head = el("div", "dl-head");
-  head.append(el("b", "dl-title", "DRUM BEATS"), el("span", "dl-sub", "100 grooves in 10 genres, 16 bars each. Click one to load it into this track."),
+  head.append(el("b", "dl-title", "DRUM BEATS"), el("span", "dl-sub", `${DG.length * 10} grooves in ${DG.length} genres, 16 bars each. Click one to load it into this track.`),
     btn(S.dopen ? "▾ HIDE" : "▸ SHOW", false, () => { S.dopen = !S.dopen; renderDrumLib(); }));
   box.append(head);
   if (!S.dopen) return;

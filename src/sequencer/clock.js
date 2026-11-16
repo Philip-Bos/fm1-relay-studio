@@ -5,6 +5,7 @@ import { S, PPQN, TICK, LOOK, out, running, prof } from "../state.js";
 import { ensurePattern, fireWin, allNotesOff, TPB } from "./pattern.js";
 import { $ } from "../ui/dom.js";
 import { render } from "../pages/devices.js";
+import { sceneAtPulse } from "./scenes.js";
 
 export const interval = () => 60000 / (S.bpm * PPQN);
 
@@ -18,6 +19,7 @@ function schedule() {
       const t = s.next;
       if (t < now - 2) { s.next += iv; s.pulse++; continue; }
       try {
+        sceneAtPulse(s, s.pulse);
         o.send([0xf8], t);
         for (const tr of ensurePattern(s).tracks) {
           const a = (s.pulse * 4) % (tr.len * TPB);
@@ -47,6 +49,7 @@ export function stopDevice(s) {
   const o = out(s);
   if (!s.running) return;
   s.running = false;
+  if (!running().length) S.sceneQ = null;
   ensurePattern(s).tracks.forEach((t) => (t.posA = -1));
   if (o) try { o.clear?.(); allNotesOff(s, o); const playCc = prof(s).transport?.playCc; o.send(playCc != null ? [0xfc, 0xb0, playCc, 0] : [0xfc], performance.now()); } catch (e) { console.warn(e); }
   render(s);

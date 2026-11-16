@@ -1,4 +1,4 @@
-// Drum beat library: 10 genres × 10 beats, each generated as 16 bars with fills.
+// Drum beat library: 11 genres × 10 beats, each generated as 16 bars with fills.
 // Layers are "LANE:pattern" (16 steps, | is ignored). x=hit X=accent m=medium g=ghost.
 // Lanes: K kick, B kick 2, S snare, C clap, H hat, O open hat, P pedal, R rim, N snare 2, L low tom, T hi tom, A crash, D ride, E shaker, G conga, W cowbell
 export const LN = { K: 36, B: 35, S: 38, C: 39, H: 42, O: 46, P: 44, R: 37, N: 40, L: 43, T: 48, A: 49, D: 51, E: 70, G: 63, W: 56 };
@@ -114,6 +114,17 @@ export const DRUMSETS = {
     ["Coffee Shop", 76, "K:x...|..x.|.x..|..x. S:....|x...|....|x... H:x.xx|x.xx|x.xx|x.xx"],
     ["Slow Dance", 68, "K:x...|....|..x.|.... S:....|x...|....|x... H:x...|x...|x...|x... O:..x.|..x.|..x.|..x."],
     ["Ambient Pulse", 82, "K:x...|....|x...|.... C:....|x...|....|x... E:x.x.|x.x.|x.x.|x.x. H:..x.|....|..x.|...."]] },
+  "SYNTHWAVE": { sw: 0, crash: 1, ghost: 0, list: [
+    ["Outrun", 118, "K:x...|x...|x...|x... S:....|x...|....|x... H:x.x.|x.x.|x.x.|x.x. O:..x.|..x.|..x.|..x."],
+    ["Night Drive", 100, "K:x...|....|x.x.|.... S:....|x...|....|x... H:x.x.|x.x.|x.x.|x.x."],
+    ["Gated Snare", 96, "K:x...|...x|..x.|.... S:....|x...|....|x... C:....|x...|....|x... H:mxmx|mxmx|mxmx|mxmx"],
+    ["Dreamwave", 90, "K:x...|....|..x.|.... S:....|x...|....|x... E:x.x.|x.x.|x.x.|x.x. H:..x.|..x.|..x.|..x."],
+    ["Darksynth", 120, "K:x..x|x...|x..x|x... B:..x.|....|..x.|.... S:....|x...|....|x... H:x.x.|x.x.|x.x.|x.x."],
+    ["Arcade Run", 128, "K:x...|x...|x...|x... C:....|x...|....|x... H:xmxm|xmxm|xmxm|xmxm O:..x.|..x.|..x.|..x."],
+    ["Sunset Strip", 108, "K:x...|..x.|x...|.... S:....|x...|....|x... H:x.x.|x.x.|x.x.|x.x. R:...x|....|...x|...."],
+    ["Chrome Pop", 112, "K:x...|....|x.x.|.... S:....|x...|....|x... C:....|x...|....|x... H:x.x.|x.x.|x.x.|x.x. E:mxmx|mxmx|mxmx|mxmx"],
+    ["Slow Burn", 84, "K:x...|....|....|..x. S:....|....|x...|.... H:x.x.|x.x.|x.x.|x.x. O:....|....|....|x..."],
+    ["Neon Toms", 104, "K:x...|..x.|..x.|.... S:....|x...|....|x... H:x.x.|x.x.|x.x.|x.x. T:....|....|....|x... L:....|....|....|..x."]] },
 };
 export const parseLay = (str) => { const lay = {}; str.split(/\s+/).forEach((tk) => (lay[tk[0]] = tk.slice(2).replace(/[|_]/g, ""))); return lay; };
 

@@ -18,7 +18,7 @@ const patternKey = (s) => fwKey(s) + ":" + trackDefs(s).length;
 
 export function snapshot() {
   return {
-    format: FORMAT, version: 1, bpm: S.bpm, key: S.key, scale: S.scale, chord: S.chord, sel: S.sel,
+    format: FORMAT, version: 1, bpm: S.bpm, scenes: S.scenes, key: S.key, scale: S.scale, chord: S.chord, sel: S.sel,
     slots: S.slots.map((s) => {
       const o = out(s), p = s.pat || s.savedPat;
       return {
@@ -33,6 +33,7 @@ export function snapshot() {
 export function apply(data) {
   if (data?.format !== FORMAT) return false;
   S.bpm = data.bpm || 120; S.key = data.key || 0; S.scale = data.scale || "MAJOR"; S.chord = data.chord || "OFF"; S.sel = data.sel || 0;
+  if (Array.isArray(data.scenes)) S.scenes = data.scenes.slice(0, 8).concat(Array(8).fill(null)).slice(0, 8);
   data.slots?.forEach((x, i) => {
     const s = S.slots[i];
     if (!s || !x) return;

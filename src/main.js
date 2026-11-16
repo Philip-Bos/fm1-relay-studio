@@ -19,6 +19,7 @@ import { renderControls } from "./pages/controls.js";
 import { renderLibrary } from "./pages/library.js";
 import { bindRecord, setRec } from "./pages/record.js";
 import { load as loadSession, save as saveSession } from "./session.js";
+import { renderScenes, launchScene } from "./sequencer/scenes.js";
 
 const PAGES = { seq: drawSeq, sound: renderSound, mixer: renderMixer, controls: renderControls, library: renderLibrary };
 const PAGE_IDS = ["devices", "seq", "sound", "mixer", "controls", "library", "capture"];
@@ -34,6 +35,7 @@ export function showPage(p) {
   if (LIVE.has(leaving) && !LIVE.has(p)) S.slots.forEach((s) => s.watching && watch(s, false));
   try { history.replaceState(null, "", "#" + p); } catch { /* sandboxed */ }
   refreshPage();
+  renderScenes();
 }
 
 // ---------- animation: transport readout + piano roll ----------
@@ -43,6 +45,7 @@ function frame() {
   $("#clock-state").textContent = r.length ? "RUN" : "STOP";
   $("#play").classList.toggle("active", r.length > 0);
   $("#kmode").textContent = !S.recOn ? "KEYS · REC OFF" : s.running ? "LIVE RECORD" : "STEP ENTRY";
+  if (S.sceneDirty) { S.sceneDirty = false; renderScenes(); if (S.page === "seq") drawSeq(); }
   if (S.page === "seq") {
     if (s.running && t.posA >= 0) { // keep the playhead in view
       const sc = $("#scroll"), x = tickNow(t) * pxt();
@@ -79,6 +82,8 @@ function wire() {
     e.preventDefault();
     running().length ? $("#stop").click() : $("#play").click();
   });
+  // 1–8 with Alt: launch a scene from anywhere
+  addEventListener("keydown", (e) => { if (e.altKey && /^Digit[1-8]$/.test(e.code) && !typing(e)) { e.preventDefault(); launchScene(+e.code.slice(5) - 1); } });
   addEventListener("keyup", (e) => { if (e.code === "Space" && e.target.tagName === "BUTTON") e.preventDefault(); });
   document.addEventListener("device-identified", () => refreshPage());
   addEventListener("hashchange", () => { const p = location.hash.slice(1); if (p !== S.page && PAGE_IDS.includes(p)) showPage(p); });
@@ -103,4 +108,5 @@ const start = location.hash.slice(1);
 showPage(PAGE_IDS.includes(start) ? start : "devices");
 if (params.has("demo")) enableDemo();
 render();
+renderScenes();
 requestAnimationFrame(frame);
