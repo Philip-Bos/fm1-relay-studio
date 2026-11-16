@@ -5,7 +5,7 @@ import { $, el, link } from "../ui/dom.js";
 import { PROFILES } from "../firmware/index.js";
 import { startDevice, stopDevice } from "../sequencer/clock.js";
 
-import { onPortChange, refreshAudio } from "../midi/access.js";
+import { onPortChange, refreshAudio, enableDemo } from "../midi/access.js";
 import { renderRecTargets } from "./record.js";
 import { refreshPage } from "../main.js";
 
@@ -16,11 +16,15 @@ function fill(sel, list, val, ph, key) {
   list.forEach((d) => sel.add(new Option(label(d), d[key])));
   sel.value = val;
 }
+const NEW_SYNTH = "builtin:new";
+
 export function refreshLists() {
   S.slots.forEach((s) => {
     const c = cards[s.i];
     if (!c) return;
-    if (document.activeElement !== c.m) fill(c.m, S.outs, s.midiId, "Select output…", "id");
+    // the built-in synth is always on the list: pick it to add one more on this card
+    const more = S.demos.length < MAX ? [{ id: NEW_SYNTH, name: "＋ New built-in synth" }] : [];
+    if (document.activeElement !== c.m) fill(c.m, [...S.outs, ...more], s.midiId, "Select output…", "id");
     if (document.activeElement !== c.a) fill(c.a, S.ins, s.audioId, "Select audio input…", "deviceId");
   });
   renderRecTargets();
@@ -28,7 +32,7 @@ export function refreshLists() {
 
 export function drawCount() {
   $("#device-count").textContent = `${armedSlots().length}/${MAX} ARMED`;
-  $("#midi-status").textContent = S.midi || S.demo ? `${S.outs.length} OUT · ${S.sysex ? "SYSEX" : S.demo ? "DEMO" : "NO SYSEX"}` : "NOT CONNECTED";
+  $("#midi-status").textContent = S.midi || S.demos.length ? `${S.outs.length} OUT · ${S.sysex ? "SYSEX" : S.demos.length ? "DEMO" : "NO SYSEX"}` : "NOT CONNECTED";
 }
 
 export function render(s) {
@@ -66,7 +70,7 @@ function renderSetup() {
   head.append(el("b", "", `DEVICE ${s.i + 1} · ${p.name}`), el("span", "dim", o ? label(o) : "no output chosen"));
   if (s.info) head.append(el("span", "chip-t", s.info.version));
   box.append(head);
-  if (!o) { box.append(el("p", "sh-hint", "Press CONNECT (or TRY DEMO DEVICE), then choose a MIDI output on a card. The firmware is detected automatically.")); return; }
+  if (!o) { box.append(el("p", "sh-hint", "Press CONNECT (or TRY BUILT-IN SYNTH), then choose a MIDI output on a card. The firmware is detected automatically.")); return; }
   const ul = el("ul", "setup-list");
   p.setup.forEach((t) => ul.append(el("li", "", t)));
   box.append(ul);
@@ -85,7 +89,7 @@ function renderSetup() {
   Object.entries(p.links || {}).forEach(([k, href]) => links.append(link(k.toUpperCase() + " ↗", href)));
   if (links.childElementCount) box.append(links);
   if (!s.info && S.sysex && p.protocol === "fl") box.append(el("p", "warn", "This firmware speaks the editor protocol but didn't answer. Check the USB cable, then press IDENT."));
-  if (!S.sysex && !S.demo) box.append(el("p", "warn", "SysEx permission was not granted, so sound editing, the SysEx mixer and pattern sync are off. Reconnect and allow SysEx."));
+  if (!S.sysex && !S.demos.length) box.append(el("p", "warn", "SysEx permission was not granted, so sound editing, the SysEx mixer and pattern sync are off. Reconnect and allow SysEx."));
 }
 
 export function buildDevices() {
@@ -104,6 +108,7 @@ export function buildDevices() {
     c.arm.onclick = () => { if (s.armed) stopDevice(s); s.armed = !s.armed; render(); };
     c.m.onchange = (e) => {
       stopDevice(s);
+      if (e.target.value === NEW_SYNTH) { s.midiId = ""; enableDemo(s); render(); return; }
       s.midiId = e.target.value;
       s.midiName = out(s)?.name || "";
       s.armed = !!s.midiId;

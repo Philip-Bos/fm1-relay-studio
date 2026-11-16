@@ -1,6 +1,6 @@
 // A software FM-1 that answers the FL editor protocol like a small SLOOP. It looks like a Web MIDI
 // output/input pair, so the app (demo mode) and the tests can talk to it exactly as to hardware.
-// It makes no sound and models only what an editor can see.
+// It models what an editor can see; in the app (demo mode) a Web Audio synth plays what it receives (demo-synth.js).
 
 import { writeV14, readV14, writeCString, writeBits, pack7, crc32 } from "../lib/encoding.js";
 import { CMD, FMT, isFl, encodeStep, parseStep, encodeDrumStep } from "../protocol/fl.js";
@@ -24,12 +24,12 @@ const NSTEP = 64, NTRK = 4, DRUM = 3;
 
 const emptyStep = () => ({ notes: [], time: 2, flags: 0, vel: 100, lvl: 0, rat: 0 });
 
-export function createVirtualDevice({ name = "Virtual SLOOP", version = "FELUCCA SLOOP 2.8.4 VIRTUAL", latency = 4 } = {}) {
+export function createVirtualDevice({ name = "Virtual SLOOP", id = "virtual-fm1", version = "FELUCCA SLOOP 2.8.4 VIRTUAL", latency = 4 } = {}) {
   const listeners = new Set();
   const state = {
     selected: 0, watch: 0, solo: 0, notes: [],
     tracks: Array.from({ length: NTRK }, (_, i) => ({
-      engine: i === DRUM ? ENGINES.length : i % ENGINES.length, preset: 0,
+      engine: i === DRUM ? ENGINES.length : i % ENGINES.length, preset: i === 2 ? 2 : 0,
       p: P.map((x, k) => (i === DRUM && k === PE0 ? 1 : x.def)), steps: Array.from({ length: NSTEP }, emptyStep),
     })),
     drum: Array.from({ length: NSTEP }, () => []),
@@ -138,16 +138,18 @@ export function createVirtualDevice({ name = "Virtual SLOOP", version = "FELUCCA
   }
 
   const output = {
-    id: "virtual-fm1-out", name, manufacturer: "fm1-relay", type: "output", state: "connected", connection: "open",
-    send(data) {
+    id: `${id}-out`, name, manufacturer: "fm1-relay", type: "output", state: "connected", connection: "open",
+    send(data, timestamp) {
       const a = Array.from(data);
       if (isFl(a)) return handle(a.slice(5, -1), a[4]);
       if ((a[0] & 0xf0) === 0x90 && a[2]) state.notes.push({ ch: a[0] & 15, note: a[1], vel: a[2] });
+      if (state.notes.length > 256) state.notes.splice(0, 128);
+      output.onplay?.(a, timestamp);
     },
     clear() {}, open: async () => output, close: async () => output,
   };
   const input = {
-    id: "virtual-fm1-in", name, manufacturer: "fm1-relay", type: "input", state: "connected", connection: "open", onmidimessage: null,
+    id: `${id}-in`, name, manufacturer: "fm1-relay", type: "input", state: "connected", connection: "open", onmidimessage: null,
     addEventListener: (type, fn) => type === "midimessage" && listeners.add(fn),
     removeEventListener: (type, fn) => listeners.delete(fn),
     open: async () => input, close: async () => input,
@@ -157,5 +159,13 @@ export function createVirtualDevice({ name = "Virtual SLOOP", version = "FELUCCA
     if (scope) state.g[id] = v; else trk().p[id] = v;
     if (state.watch & 1) emit([0xf0, 0x7d, 0x46, 0x4c, CMD.CHANGED, scope, id, ...writeV14(v), 0xf7]);
   }
-  return { output, input, state, turnKnob };
+  /** Program Change on a synth track: the n-th sound of the whole PRESETS list (as SLOOP counts them). */
+  function programChange(track, n) {
+    const t = state.tracks[track];
+    if (!t || track === DRUM) return;
+    const flat = PRESETS.flatMap((l, e) => l.map((_, p) => [e, p])), [e, p] = flat[n % flat.length];
+    t.engine = e; t.preset = p;
+  }
+  const presetName = (t) => PRESETS[t.engine]?.[t.preset] || "";
+  return { output, input, state, turnKnob, programChange, presetName };
 }

@@ -106,7 +106,7 @@ setTempo(S.bpm);
 markScale();
 const start = location.hash.slice(1);
 showPage(PAGE_IDS.includes(start) ? start : "devices");
-if (params.has("demo")) enableDemo();
+if (params.has("demo")) { for (let k = Math.max(1, Math.min(8, +params.get("demo") || 1)); k > 0; k--) enableDemo(); }
 render();
 renderScenes();
 requestAnimationFrame(frame);

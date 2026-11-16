@@ -52,11 +52,12 @@ export async function record() {
     se.dest = se.ctx.createMediaStreamDestination();
     for (const [k, slot] of chosen.entries()) {
       setRec(`INPUT ${k + 1}/${chosen.length}…`);
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: slot.audioId }, channelCount: { ideal: 2 },
+      const demo = S.ins.find((d) => d.deviceId === slot.audioId)?.demo; // a built-in synth: its own stream
+      const stream = demo ? demo.sound.stream.clone() : await navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: slot.audioId }, channelCount: { ideal: 2 },
         echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false });
       if (!stream.getAudioTracks().length) { stream.getTracks().forEach((t) => t.stop()); throw new Error(`Input ${slot.i + 1} has no audio`); }
       const source = se.ctx.createMediaStreamSource(stream);
-      source.connect(se.dest); if (slot.mon) source.connect(se.ctx.destination);
+      source.connect(se.dest); if (slot.mon && !demo) source.connect(se.ctx.destination); // a built-in synth is always heard
       se.tracks.push({ slot, stream, source, rec: null, chunks: [] });
     }
     for (const t of se.tracks) {

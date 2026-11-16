@@ -1,4 +1,4 @@
-// Web MIDI and audio-input discovery, plus the virtual demo device.
+// Web MIDI and audio-input discovery, plus the built-in synth (virtual devices that play in the browser).
 
 import { S, out } from "../state.js";
 import { $ } from "../ui/dom.js";
@@ -6,6 +6,7 @@ import { identify, closeClient } from "../device/fl-device.js";
 import { stopDevice } from "../sequencer/clock.js";
 import { hookInputs } from "../sequencer/keyboard.js";
 import { createVirtualDevice } from "../dev/virtual-device.js";
+import { createDemoSound } from "../dev/demo-synth.js";
 import { render, refreshLists, drawCount } from "../pages/devices.js";
 import { setRec } from "../pages/record.js";
 import { restoreAssignments } from "../session.js";
@@ -26,20 +27,35 @@ export async function connectMidi() {
   } catch (e) { console.error(e); msg("MIDI ACCESS DENIED"); }
 }
 
-/** Add a software FM-1 (SLOOP-like) so every page can be tried without hardware. */
-export function enableDemo() {
-  if (S.demo) return;
-  S.demo = createVirtualDevice();
+/** The audio "inputs" of the built-in synths: their synths' output streams, recordable like a real FM-1's USB audio. */
+export const demoIns = () => S.demos.filter((d) => d.sound?.stream).map((d) => ({ kind: "audioinput", deviceId: `demo:${d.output.id}`, label: `${d.output.name} · AUDIO`, groupId: "demo", demo: d }));
+
+/** Add a built-in synth: a software device that plays in the browser, so every page can be tried without hardware.
+ *  Each press adds one more (up to eight). */
+export function enableDemo(target = null) {
+  if (S.demos.length >= S.slots.length) return;
+  const n = S.demos.length + 1;
+  const dev = createVirtualDevice({ name: `Built-in Synth ${n}`, id: n === 1 ? "virtual-fm1" : `virtual-fm1-${n}`, version: "FM-1 RELAY STUDIO BUILT-IN SYNTH 1.0" });
+  try { dev.sound = createDemoSound(dev, { presetName: dev.presetName }); } catch (e) { console.warn("demo sound unavailable", e); }
+  if (dev.sound) dev.output.onplay = (a, ts) => dev.sound.midi(a, ts);
+  S.demos.push(dev);
+  S.ins = [...S.ins.filter((d) => !d.demo), ...demoIns()];
   refreshOutputs();
-  const has = S.slots.find((s) => s.midiId === S.demo.output.id);
-  const free = !has && S.slots.find((s) => !s.midiId);
-  if (has) S.sel = has.i;
-  if (free) { free.midiId = S.demo.output.id; free.midiName = S.demo.output.name; free.armed = true; S.sel = free.i; onPortChange(free); }
+  const has = !target && S.slots.find((s) => s.midiId === dev.output.id);
+  const free = !has && (target || S.slots.find((s) => !s.midiId));
+  const s = has || free;
+  if (s) {
+    S.sel = s.i;
+    if ((!s.audioId || s === target) && dev.sound?.stream) { s.audioId = `demo:${dev.output.id}`; s.audioName = `${dev.output.name} · AUDIO`; }
+    if (free) { free.midiId = dev.output.id; free.midiName = dev.output.name; free.armed = true; onPortChange(free); }
+  }
+  const b = $("#demo");
+  if (b) { b.textContent = S.demos.length >= S.slots.length ? "8 BUILT-IN SYNTHS" : "ADD BUILT-IN SYNTH"; b.title = "Add another built-in synth, to try syncing several devices"; }
   refreshLists(); render();
 }
 
 export function refreshOutputs() {
-  S.outs = [...(S.midi ? S.midi.outputs.values() : []), ...(S.demo ? [S.demo.output] : [])];
+  S.outs = [...(S.midi ? S.midi.outputs.values() : []), ...S.demos.map((d) => d.output)];
   restoreAssignments();
   S.slots.forEach((s) => {
     if (s.midiId && !out(s)) { stopDevice(s); closeClient(s); s.midiId = ""; s.armed = false; s.fw = null; s.info = null; }
@@ -79,7 +95,7 @@ function autoPair() {
 export async function refreshAudio() {
   if (!navigator.mediaDevices?.enumerateDevices) return;
   try {
-    S.ins = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === "audioinput");
+    S.ins = [...(await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === "audioinput"), ...demoIns()];
     S.slots.forEach((s) => {
       if (!s.audioId && s.audioName) { const m = S.ins.find((d) => d.label === s.audioName); if (m) s.audioId = m.deviceId; }
       if (s.audioId && !S.ins.some((d) => d.deviceId === s.audioId)) s.audioId = "";

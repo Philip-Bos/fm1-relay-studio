@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- **Built-in synth:** a sound engine in the browser that works like an FM-1 with the "BUILT-IN SYNTH" profile: three synth tracks (subtractive, FM and 808 voices, 12 sounds by Program Change) and a drum track, with reverb, tempo-synced delay, the filter on CC 74 and the usual level, pan and sound CCs. "＋ New built-in synth" appears in every MIDI OUT list, so a built-in synth can stand in for any slot next to real FM-1s; TRY BUILT-IN SYNTH adds one from the start screen, and `?demo=N` opens with N of them. Each built-in synth has its own audio input, so the Recordings page records it as a stem.
+- `?look=` sets the clock look-ahead in ms (20–200) for slow machines.
 - **Scenes:** eight snapshots of which tracks play, across every device. Launched while playing, a scene takes over on the next downbeat, so sections come in and out together. STORE (or Shift+click) keeps which tracks play now (an empty track counts as muted, so scenes stored layer by layer stay apart); Alt+1–8 launches from any page. Kept with the session.
 - **Device tabs** on the Sequencer page when more than one device is armed: switch device without going back to Devices.
 - **SYNTHWAVE** drum genre: 10 more grooves (110 in 11 genres).

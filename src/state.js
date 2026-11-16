@@ -2,7 +2,9 @@
 
 import { getProfile, tracksFor } from "./firmware/index.js";
 
-export const MAX = 8, PPQN = 24, TICK = 5, LOOK = 20;
+// LOOK: how far ahead (ms) clock and notes are scheduled; ?look=60 gives a busy machine (or a screen capture) more room
+const lookParam = () => { try { return +new URLSearchParams(globalThis.location?.search || "").get("look") || 0; } catch { return 0; } };
+export const MAX = 8, PPQN = 24, TICK = 5, LOOK = Math.max(20, Math.min(200, lookParam() || 20));
 export const COL = ["#5b8def", "#4cc38a", "#f0c244", "#ff8c42", "#d96ad0", "#8e7cf0"];
 
 const slot = (i) => ({
@@ -19,7 +21,7 @@ export const S = {
   // drum library
   dg: "HOUSE", dopen: true, beatTempo: false, dmsg: "",
   // sound / controls
-  stab: "preset", takes: [], urls: [], demo: null,
+  stab: "preset", takes: [], urls: [], demos: [],
 };
 
 export const out = (s) => S.outs.find((o) => o.id === s.midiId);

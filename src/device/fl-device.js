@@ -9,12 +9,13 @@ import { ensurePattern, lanesOf, hist, TPB } from "../sequencer/pattern.js";
 import { stepsToNotes, notesToSteps, drumStepsToNotes, notesToDrumSteps, ticksPerStep } from "../sequencer/steps.js";
 
 /** The MIDI input that belongs to an output: same port name (the virtual device has its own pair). */
-export const inputFor = (o) => (o && S.demo?.output === o ? S.demo.input : [...(S.midi?.inputs.values() || [])].find((i) => i.name === o?.name));
+export const demoFor = (o) => (o ? S.demos.find((d) => d.output === o) : null);
+export const inputFor = (o) => demoFor(o)?.input || [...(S.midi?.inputs.values() || [])].find((i) => i.name === o?.name);
 
 /** The slot's FL client, (re)built when its port changed. Null without SysEx or a matching input. */
 export function client(s) {
   const o = out(s), inp = inputFor(o);
-  if (!o || !inp || !(S.sysex || o === S.demo?.output)) { closeClient(s); return null; }
+  if (!o || !inp || !(S.sysex || demoFor(o))) { closeClient(s); return null; }
   if (s.fl?.output !== o) { closeClient(s); s.fl = new FlClient({ output: o, input: inp }); }
   return s.fl;
 }

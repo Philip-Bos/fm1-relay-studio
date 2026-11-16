@@ -7,7 +7,7 @@
 Clock master, piano-roll sequencer, firmware-aware sound editor, mixer, remote control and multitrack recorder for up
 to eight FM-1s, in one static web page.
 
-[**▶ Open the app**](https://philip-bos.github.io/fm1-relay-studio/) · [Try it with a demo device](https://philip-bos.github.io/fm1-relay-studio/?demo)
+[**▶ Open the app**](https://philip-bos.github.io/fm1-relay-studio/) · [Try it with the built-in synth](https://philip-bos.github.io/fm1-relay-studio/?demo)
 
 [![CI](https://github.com/Philip-Bos/fm1-relay-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/Philip-Bos/fm1-relay-studio/actions/workflows/ci.yml)
 [![Pages](https://github.com/Philip-Bos/fm1-relay-studio/actions/workflows/pages.yml/badge.svg)](https://philip-bos.github.io/fm1-relay-studio/)
@@ -27,7 +27,7 @@ documented MIDI channels, CCs and Program Change.
 ## Quick start
 
 1. Open **<https://philip-bos.github.io/fm1-relay-studio/>** in Chrome or Edge. They support Web MIDI with SysEx.
-2. Press **CONNECT** and allow MIDI with SysEx. No FM-1 at hand? Press **TRY DEMO DEVICE** for a virtual SLOOP.
+2. Press **CONNECT** and allow MIDI with SysEx. No FM-1 at hand? Press **TRY BUILT-IN SYNTH**: the studio's own synth plays in the browser. Press it again to add more (up to eight), or open the app with `?demo=3`.
 3. On a device card, pick the FM-1's **MIDI OUT**, and its **AUDIO IN** if you want to record. The firmware is detected
    automatically, and the panel underneath lists the exact menu settings it needs.
 4. Set the tempo and press ▶ (or <kbd>Space</kbd>).
